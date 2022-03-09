@@ -1,4 +1,4 @@
-const User = require("./model");
+const FamillyMember = require("../models/FamillyMember");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
@@ -17,10 +17,10 @@ exports.register = async (req, res) => {
     role,
   } = req.body;
 
-  if (await User.findOne({ email })) {
-    res.status(403).send({ message: "User already exist !" });
+  if (await FamillyMember.findOne({ email })) {
+    res.status(403).send({ message: "FamillyMember already exist !" });
   } else {
-    let user = await new User({
+    let famillyMember = await new FamillyMember({
       email,
       password: await bcrypt.hash(password, 10),
       firstname,
@@ -32,11 +32,11 @@ exports.register = async (req, res) => {
       role,
     }).save();
 
-    await configurerDossierUser(user._id);
+    await configurerDossierFamillyMember(famillyMember._id);
 
     // token creation
     const token = jwt.sign(
-      { _id: user._id, role: user.role },
+      { _id: famillyMember._id, role: famillyMember.role },
       process.env.JWT_SECRET,
       { expiresIn: "60000" } // in Milliseconds (3600000 = 1 hour)
     );
@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
 
     res.status(200).send({
       message: "success",
-      user,
+      famillyMember,
       Token: jwt.verify(token, process.env.JWT_SECRET),
     });
   }
@@ -54,17 +54,17 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const famillyMember = await FamillyMember.findOne({ email });
 
-  if (user && (await bcrypt.compare(password, user.password))) {
+  if (famillyMember && (await bcrypt.compare(password, famillyMember.password))) {
     const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
       expiresIn: "36000000",
     });
 
-    if (!user.isVerified) {
-      res.status(403).send({ user, message: "email non verifié" });
+    if (!famillyMember.isVerified) {
+      res.status(403).send({ famillyMember, message: "email non verifié" });
     } else {
-      res.status(200).send({ token, user, message: "success" });
+      res.status(200).send({ token, famillyMember, message: "success" });
     }
   } else {
     res.status(403).send({ message: "mot de passe ou email incorrect" });
@@ -77,13 +77,13 @@ exports.loginWithSocial = async (req, res) => {
   if (email === "") {
     res.status(403).send({ message: "error please provide an email" });
   } else {
-    var user = await User.findOne({ email });
-    if (user) {
-      console.log("user exists, loging in");
+    var famillyMember = await FamillyMember.findOne({ email });
+    if (famillyMember) {
+      console.log("famillyMember exists, loging in");
     } else {
-      console.log("user does not exists, creating an account");
+      console.log("famillyMember does not exists, creating an account");
 
-      user = await new User({
+      famillyMember = await new FamillyMember({
         email,
         firstname,
         lastname,
@@ -97,23 +97,23 @@ exports.loginWithSocial = async (req, res) => {
       expiresIn: "360000000",
     });
 
-    res.status(201).send({ message: "success", user, token: token });
+    res.status(201).send({ message: "success", famillyMember, token: token });
   }
 };
 
 exports.sendConfirmationEmail = async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
+  const famillyMember = await FamillyMember.findOne({ email: req.body.email });
 
-  if (user) {
-    token = generateUserToken(user._id, email._id);
+  if (famillyMember) {
+    token = generateFamillyMemberToken(famillyMember._id, email._id);
 
     sendConfirmationEmail(req.body.email, token);
 
     res.status(200).send({
-      message: "L'email de confirmation a été envoyé a " + user.email,
+      message: "L'email de confirmation a été envoyé a " + famillyMember.email,
     });
   } else {
-    res.status(404).send({ message: "User innexistant" });
+    res.status(404).send({ message: "FamillyMember innexistant" });
   }
 };
 
@@ -135,18 +135,18 @@ exports.confirmation = async (req, res) => {
     });
   }
 
-  User.findById(token._id, function (err, user) {
-    if (!user) {
+  FamillyMember.findById(token._id, function (err, famillyMember) {
+    if (!famillyMember) {
       return res.render("confirmation.twig", {
-        message: "User does not exist, please register.",
+        message: "FamillyMember does not exist, please register.",
       });
-    } else if (user.isVerified) {
+    } else if (famillyMember.isVerified) {
       return res.render("confirmation.twig", {
-        message: "This user has already been verified, please login",
+        message: "This famillyMember has already been verified, please login",
       });
     } else {
-      user.isVerified = true;
-      user.save(function (err) {
+      famillyMember.isVerified = true;
+      famillyMember.save(function (err) {
         if (err) {
           return res.render("confirmation.twig", {
             message: err.message,
@@ -163,12 +163,12 @@ exports.confirmation = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   const resetCode = req.body.resetCode;
-  const user = await User.findOne({ email: req.body.email });
+  const famillyMember = await FamillyMember.findOne({ email: req.body.email });
 
-  if (user) {
+  if (famillyMember) {
     // token creation
     const token = jwt.sign(
-      { _id: user._id, email: user.email },
+      { _id: famillyMember._id, email: famillyMember.email },
       process.env.JWT_SECRET,
       {
         expiresIn: "3600000", // in Milliseconds (3600000 = 1 hour)
@@ -178,10 +178,10 @@ exports.forgotPassword = async (req, res) => {
     sendOTP(req.body.email, resetCode);
 
     res.status(200).send({
-      message: "L'email de reinitialisation a été envoyé a " + user.email,
+      message: "L'email de reinitialisation a été envoyé a " + famillyMember.email,
     });
   } else {
-    res.status(404).send({ message: "User innexistant" });
+    res.status(404).send({ message: "FamillyMember innexistant" });
   }
 };
 
@@ -191,7 +191,7 @@ exports.updatePassword = async (req, res) => {
   if (newPassword) {
     newPasswordEncrypted = await bcrypt.hash(newPassword, 10);
 
-    let user = await User.findOneAndUpdate(
+    let famillyMember = await FamillyMember.findOneAndUpdate(
       { email: email },
       {
         $set: {
@@ -200,7 +200,7 @@ exports.updatePassword = async (req, res) => {
       }
     );
 
-    return res.send({ message: "Password updated successfully", user });
+    return res.send({ message: "Password updated successfully", famillyMember });
   } else {
     return res.status(403).send({ message: "Password should not be empty" });
   }
@@ -208,7 +208,7 @@ exports.updatePassword = async (req, res) => {
 
 ///// FUNCTIONS ---------------------------------------------------------
 
-async function generateUserToken(_id, email) {
+async function generateFamillyMemberToken(_id, email) {
   return jwt.sign({ _id: _id, email: email }, process.env.JWT_SECRET, {
     expiresIn: "100000000", // in Milliseconds (3600000 = 1 hour)
   });
@@ -218,7 +218,7 @@ async function sendConfirmationEmail(email, token) {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.GMAIL_USER,
+      famillyMember: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASSWORD,
     },
   });
@@ -257,7 +257,7 @@ async function sendOTP(email, codeDeReinit) {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.GMAIL_USER,
+      famillyMember: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASSWORD,
     },
   });
@@ -290,7 +290,7 @@ async function sendOTP(email, codeDeReinit) {
   });
 }
 
-async function configurerDossierUser(id) {
+async function configurerDossierFamillyMember(id) {
   const dir = `./images/uploads`;
 
   fs.mkdir(dir, function () {

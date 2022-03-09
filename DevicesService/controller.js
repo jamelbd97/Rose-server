@@ -14,6 +14,18 @@ exports.add = async (req, res) => {
   return res.send({ message: "Device added successfully", device });
 };
 
+exports.addCode = async (req, res) => {
+  const { _id, infraredCodes } = req.body;
+  let device = await Device.findById(_id);
+  if (device) {
+    console.log(infraredCodes);
+    await device.update({ $push: { infraredCodes: infraredCodes } });
+    return res.send({ message: "Infrared code added successfully" });
+  } else {
+    return res.send({ message: "Device does not exist" });
+  }
+};
+
 exports.update = async (req, res) => {
   const { _id, name, type } = req.body;
   let device = await Device.findById(_id);
