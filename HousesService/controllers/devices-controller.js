@@ -9,8 +9,9 @@ exports.getAll = async (req, res) => {
 };
 
 exports.add = async (req, res) => {
-  const { name, type } = req.body;
-  let device = await new Device({ name: name, type: type }).save();
+  console.log(req.body)
+  const { ledState, type } = req.body;
+  let device = await new Device({ ledState: ledState, type: type }).save();
   return res.send({ message: "Device added successfully", device });
 };
 
@@ -27,10 +28,10 @@ exports.addCode = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const { _id, name, type } = req.body;
+  const { _id, ledState, type } = req.body;
   let device = await Device.findById(_id);
   if (device) {
-    await device.update({ $set: { name: name, type: type } });
+    await device.update({ $set: { ledState: ledState, type: type } });
     return res.send({ message: "Device updated successfully" });
   } else {
     return res.send({ message: "Device does not exist" });

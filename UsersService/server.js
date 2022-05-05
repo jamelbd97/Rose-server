@@ -86,6 +86,9 @@ app.post("/update-password", authController.updatePassword);
 
 
 
+
+app
+  .route("/one")
  /**
  * @swagger
  *   /one:
@@ -94,41 +97,41 @@ app.post("/update-password", authController.updatePassword);
  *    summary: Returns user by his id
  *    tags: [Users]
  *    parameters:
- *     - in: body
- *       name: _id
- *       type: string
+ *      - in: body
+ *        name: FamilyMember
+ *        schema:
+ *         type: object
+ *         properties: 
+ *          _id:
+ *           type: string
  *    responses:
  *     200:
  *      description: the user by id
  *      content:
  *      application/json:
  *     400:
- *      description: utilisateur error
+ *      description: cannot find user
  */
-app
-  .route("/one")
   .get(famillyMemberController.get)
  /**
  * @swagger
  *   /one:
  *   description: The utilisateurs managing API
  *   post:
- *    summary: Returns the list of all the utilisateurs
+ *    summary: Returns user by his id
  *    tags: [Users]
  *    parameters:
- *     - in: body
- *       name: email
- *       type: string
- *     - in: body
- *       name: password
- *       type: string
+ *      - in: body
+ *        name: email
+ *        schema:
+ *         type: string
  *    responses:
  *     200:
- *      description: The list utilisateurs
+ *      description: the user by id
  *      content:
  *      application/json:
  *     400:
- *      description: utilisateur error
+ *      description: cannot find user
  */
   .post(famillyMemberController.add)
  /**
@@ -136,46 +139,46 @@ app
  *   /one:
  *   description: The utilisateurs managing API
  *   put:
- *    summary: Returns the list of all the utilisateurs
+ *    summary: Returns user by his id
  *    tags: [Users]
  *    parameters:
- *     - in: body
- *       name: email
- *       type: string
- *     - in: body
- *       name: password
- *       type: string
+ *      - in: body
+ *        name: email
+ *        schema:
+ *         type: string
  *    responses:
  *     200:
- *      description: The list utilisateurs
+ *      description: the user by id
  *      content:
  *      application/json:
  *     400:
- *      description: utilisateur error
+ *      description: cannot find user
  */
   .put(famillyMemberController.update)
  /**
  * @swagger
- * /one:
+ *   /one:
  *   description: The utilisateurs managing API
  *   delete:
- *     summary: Delete from his id 
- *     tags: [Users]
- *     parameters:
- *       - in: body
- *          name: _id
- *          type: string
- *     responses:
- *      200:
- *       description: Supprimer utilisateur
- *       content:
- *       application/json:
- *      400:
- *       description: utilisateur error
+ *    summary: Returns user by his id
+ *    tags: [Users]
+ *    parameters:
+ *      - in: body
+ *        name: FamilyMember
+ *        schema:
+ *         type: object
+ *         properties: 
+ *          _id:
+ *           type: string
+ *    responses:
+ *     200:
+ *      description: the user by id
+ *      content:
+ *      application/json:
+ *     400:
+ *      description: cannot find user
  */
   .delete(famillyMemberController.delete);
-
-
  /**
  * @swagger
  *   /all:

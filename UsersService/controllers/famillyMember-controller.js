@@ -9,6 +9,7 @@ exports.getAll = async (req, res) => {
 };
 
 exports.add = async (req, res) => {
+  console.log(req.body)
   const { name, type } = req.body;
   let famillyMember = await new FamillyMember({ name: name, type: type }).save();
   return res.send({ message: "FamillyMember added successfully", famillyMember });
@@ -26,6 +27,7 @@ exports.update = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
+  console.log(req.params)
   let famillyMember = await FamillyMember.findById(req.body._id);
   if (famillyMember) {
     await famillyMember.remove();

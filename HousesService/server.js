@@ -71,9 +71,9 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 // ROUTES
-app.use("/houses", require("./routes/room-route"))
-app.use("/rooms", require("./routes/device-route"))
-app.use("/devices", require("./routes/house-root"))
+app.use("/houses", require("./routes/house-root"))
+app.use("/rooms", require("./routes/room-route"))
+app.use("/devices", require("./routes/device-route"))
 
 
 app.listen(port, () => console.log(`Server up and running on port ${port} !`))
