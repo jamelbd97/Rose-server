@@ -1,6 +1,8 @@
 let FamillyMember = require("../models/FamillyMember");
 
 exports.get = async (req, res) => {
+  if (req.body) swaggerMetadata.params.body = {value: req.body};
+  console.log(req.body)
   res.send({ famillyMember: await FamillyMember.findById(req.body._id) });
 };
 
@@ -14,6 +16,15 @@ exports.add = async (req, res) => {
   let famillyMember = await new FamillyMember({ name: name, type: type }).save();
   return res.send({ message: "FamillyMember added successfully", famillyMember });
 };
+
+exports.addGuest = async (req, res) => {
+  console.log(req.body)
+ // const { name, type } = req.body;
+ // let famillyMember = await new FamillyMember({ name: name, type: type }).save();
+ let famillyMember = await new FamillyMember({ }).save();
+  return res.send({ message: "Guest added successfully", famillyMember });
+};
+
 
 exports.update = async (req, res) => {
   const { _id, name, type } = req.body;

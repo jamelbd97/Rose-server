@@ -81,6 +81,7 @@ app.post("/send-confirmation-email", authController.sendConfirmationEmail);
 app.get("/confirmation/:token", authController.confirmation);
 app.post("/forgot-password", authController.forgotPassword);
 app.post("/update-password", authController.updatePassword);
+app.post("/addguest", authController.registerguest);
 
 
 
@@ -98,12 +99,9 @@ app
  *    tags: [Users]
  *    parameters:
  *      - in: body
- *        name: FamilyMember
+ *        name: _id
  *        schema:
- *         type: object
- *         properties: 
- *          _id:
- *           type: string
+ *         type: string
  *    responses:
  *     200:
  *      description: the user by id
